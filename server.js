@@ -1,52 +1,40 @@
 const io = require('socket.io')();
-
-const jsonfile = require('jsonfile')
-
-const file = './chat.json'
-
-let CHATS = []
+const connection = require('./connection')
 
 io.on('connection', client => { 
   const { id } = client
 
   client.on('chat list', () => {
-    jsonfile.readFile(file)
-    .then(obj => {
-      CHATS = obj
-      client.emit('chat list', {
-        status: 'success',
-        data: CHATS, 
-      })
-    })
-    .catch(() => {
-      client.emit('chat list', {
-        status: 'error',
-      })
-    } )
+    connection.query('SELECT * FROM `chat`',(error, results) => {
+      client.emit('chat list', results)
+    } );
   } )
   
   client.on('chat message', data => {
-    const timemap = Date.now()
-
-    const c = {
-      id,
-      timemap,
-      message: data,
+    const obj = {
+      ...data,
+      chat_user: id,
     }
+    connection.query('INSERT INTO chat SET ?', obj, (error, results) => {
+      if (error) {
+        console.log(error);
+        return
+      };
+      const { insertId } = results
 
-    CHATS.push(c)
-
-    jsonfile.writeFile(file, CHATS)
-    .then(res => {
-      client.emit('chat message', {
-        status: 'success',
-        data: c, 
-      })
-    })
-    .catch(() => {
-      client.emit('chat message', {status: 'error'})
-    })
+      connection.query('SELECT * FROM `chat` WHERE `chat_id` = ?', [insertId], (error, results)=> {
+        if (error) {
+          console.log(error);
+          return
+        };
+        client.emit('chat message', {
+          status: 'success',
+          results, 
+        })
+      } )
+    } )
   });
+
   client.on('disconnect', () => {
 
   });
