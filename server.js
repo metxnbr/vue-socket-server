@@ -9,7 +9,7 @@ let CHATS = []
 io.on('connection', client => { 
   const { id } = client
 
-  client.on('chat ready', () => {
+  client.on('chat list', () => {
     jsonfile.readFile(file)
     .then(obj => {
       CHATS = obj
@@ -38,13 +38,13 @@ io.on('connection', client => {
 
     jsonfile.writeFile(file, CHATS)
     .then(res => {
-      client.emit('send status', {
+      client.emit('chat message', {
         status: 'success',
         data: c, 
       })
     })
     .catch(() => {
-      client.emit('send status', {status: 'error'})
+      client.emit('chat message', {status: 'error'})
     })
   });
   client.on('disconnect', () => {
