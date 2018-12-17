@@ -3,12 +3,6 @@ const connection = require('./connection')
 
 io.on('connection', client => { 
   const { id } = client
-
-  client.on('chat list', () => {
-    connection.query('SELECT * FROM `chat`',(error, results) => {
-      client.emit('chat list', results)
-    } );
-  } )
   
   client.on('chat message', data => {
     const obj = {
