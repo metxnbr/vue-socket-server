@@ -21,7 +21,7 @@ io.on('connection', client => {
           console.log(error);
           return
         };
-        client.emit('chat message', {
+        io.sockets.emit('chat message', {
           status: 'success',
           results, 
         })
