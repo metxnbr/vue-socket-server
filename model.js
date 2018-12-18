@@ -1,5 +1,17 @@
 const connection = require('./connection')
 
+/*
+ * Get access token.
+ */
+
+module.exports.getAccessToken = function(bearerToken) {
+  connection.query(
+    'SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE access_token = $1',
+     [bearerToken], () => {
+
+     })
+};
+
 /**
  * Get client.
  */
@@ -20,6 +32,20 @@ module.exports.getClient = function (clientId, clientSecret) {
       };
     })
 };
+
+/**
+ * Get refresh token.
+ */
+
+module.exports.getRefreshToken = function *(bearerToken) {
+  connection.query(
+    'SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE refresh_token = $1', 
+    [bearerToken],
+    () => {
+
+    })
+};
+
 
 /*
  * Get user.
