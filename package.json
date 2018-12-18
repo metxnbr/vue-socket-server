@@ -8,6 +8,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "express-oauth-server": "^2.0.0",
     "mysql": "^2.16.0",
     "oauth2-server": "^3.0.1",
     "socket.io": "^2.2.0"
