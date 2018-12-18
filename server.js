@@ -1,5 +1,38 @@
-const io = require('socket.io')();
+const app = require('express')();
+const bodyParser = require('body-parser')
+
+const server = require('http').createServer(app);
+
+const io = require('socket.io')(server);
+
 const connection = require('./connection')
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
+
+app.get('/', function (req, res) {
+  connection.query('SELECT * FROM `chat`', (error, results)=> {
+    if (error) {
+      res.json({
+        status: 'error',
+        message: error,
+      })
+    };
+    res.json({
+      status: 'success',
+      results
+    })
+  } )
+})
 
 io.on('connection', client => { 
   const { id } = client
@@ -34,4 +67,4 @@ io.on('connection', client => {
   });
 });
 
-io.listen(3000);
+server.listen(3000);
