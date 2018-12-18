@@ -22,10 +22,15 @@ app.use(function(req, res, next) {
 app.get('/', function (req, res) {
   connection.query('SELECT * FROM `chat`', (error, results)=> {
     if (error) {
-      console.log(error);
-      return
+      res.json({
+        status: 'error',
+        message: error,
+      })
     };
-    res.json(results)
+    res.json({
+      status: 'success',
+      results
+    })
   } )
 })
 
