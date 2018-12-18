@@ -1,4 +1,5 @@
 const app = require('express')();
+const OAuthServer = require('express-oauth-server');
 const bodyParser = require('body-parser')
 
 const server = require('http').createServer(app);
@@ -6,6 +7,10 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
 const connection = require('./connection')
+
+app.oauth = new OAuthServer({
+  model: require('./model'),
+});
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -33,6 +38,8 @@ app.get('/', function (req, res) {
     })
   } )
 })
+
+app.post('/oauth/token', app.oauth.token());
 
 io.on('connection', client => { 
   const { id } = client

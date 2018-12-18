@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS `oauth_clients` (
+    `client_id` INT UNSIGNED AUTO_INCREMENT,
+    `client_secret` text NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`client_id`)
+)
