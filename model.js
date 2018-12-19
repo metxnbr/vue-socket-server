@@ -44,25 +44,41 @@ module.exports.saveToken = function *(token, client, user) {
 
   const {
     accessToken,
+    accessTokenExpiresAt,
+
     refreshToken,
+    refreshTokenExpiresAt,
   } = token
 
-  const obj = {
+  const saveAccessToken = {
     access_token: accessToken,
+    expires_at: accessTokenExpiresAt,
     client_id: client.id,
     user_id: user.id,
-    refresh_token: refreshToken,
   }
 
-  return my('INSERT INTO oauth_access_token SET ?', obj)
-  .then( (results) => {
-    console.log(results);
+  const saveRefreshToken = {
+    refresh_token: refreshToken,
+    expires_at: refreshTokenExpiresAt,
+    client_id: client.id,
+    user_id: user.id,
+  }
+
+  return my('INSERT INTO oauth_access_token SET ?', saveAccessToken)
+  .then( () => {
+    return my('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
+    .then( () => {
+      return {
+        accessToken,
+        accessTokenExpiresAt,
+        refreshToken,
+        refreshTokenExpiresAt,
+        client: { id: client.id },
+        user: { id: user.id }
+      };
+    } )
     
-    return {
-      client: client.id,
-      user : user.id,
-      accessToken,
-    }
+    
   } )
 
 };
