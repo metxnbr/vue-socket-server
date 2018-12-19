@@ -6,7 +6,7 @@ const my = require('./my')
 
 module.exports.getClient = function *(clientId, clientSecret) {
   console.log('getClient');
-  return my('SELECT * FROM oauth_clients WHERE id = ? AND secret = ?', [clientId, clientSecret])
+  return my('SELECT * FROM oauth_client WHERE id = ? AND secret = ?', [clientId, clientSecret])
   .then( results => {
     const result = results[0]
     return {
@@ -54,7 +54,7 @@ module.exports.saveToken = function *(token, client, user) {
     refresh_token: refreshToken,
   }
 
-  return my('INSERT INTO oauth_tokens SET ?', obj)
+  return my('INSERT INTO oauth_access_token SET ?', obj)
   .then( (results) => {
     console.log(results);
     
