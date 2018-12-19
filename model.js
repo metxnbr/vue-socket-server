@@ -1,36 +1,29 @@
-const connection = require('./connection')
+const my = require('./my')
 
 /*
  * Get access token.
  */
 
 module.exports.getAccessToken = function(bearerToken) {
-  connection.query(
-    'SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE access_token = $1',
-     [bearerToken], () => {
-
-     })
+  
 };
 
 /**
  * Get client.
  */
 
-module.exports.getClient = function (clientId, clientSecret) {
-  connection.query(
-    'SELECT client_id, client_secret, redirect_uri FROM oauth_clients WHERE client_id = ? AND client_secret = ?',
-    [clientId, clientSecret],
-    (error, results, fields) => {
-      if (error) {
-        return
-      }
-      const oAuthClient = results[0]
-      return {
-        clientId: oAuthClient.client_id,
-        clientSecret: oAuthClient.client_secret,
-        grants: ['password'], // the list of OAuth2 grant types that should be allowed
-      };
-    })
+module.exports.getClient = function *(clientId, clientSecret) {
+  console.log('getClient');
+  return my('SELECT * FROM oauth_clients WHERE id = ? AND secret = ?', [clientId, clientSecret])
+  .then( results => {
+    const result = results[0]
+    return {
+      clientId: result.id,
+      clientSecret: result.secret,
+      grants: ['password'], // the list of OAuth2 grant types that should be allowed
+    };
+  } )
+  
 };
 
 /**
@@ -38,12 +31,8 @@ module.exports.getClient = function (clientId, clientSecret) {
  */
 
 module.exports.getRefreshToken = function *(bearerToken) {
-  connection.query(
-    'SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE refresh_token = $1', 
-    [bearerToken],
-    () => {
+  console.log('getRefreshToken');
 
-    })
 };
 
 
@@ -51,20 +40,27 @@ module.exports.getRefreshToken = function *(bearerToken) {
  * Get user.
  */
 
-module.exports.getUser = function (username, password) {
-  connection.query('SELECT id FROM user WHERE username = ? AND password = ?', [username, password], (error, results, fields) => {
-    if (error) {
-      return
-    }
+module.exports.getUser = function *(username, password) {
+  console.log('getUser');
+
+  return my('SELECT * FROM users WHERE email = ? AND password = ?', [username, password])
+  .then( results => {
     return results[0]
-  })
+  } )
 };
 
 /**
  * Save token.
  */
 
-module.exports.saveAccessToken = function (token, client, user) {
+module.exports.saveToken = function *(token, client, user) {
+  console.log('saveAccessToken');
+
+  console.log('token', token);
+  console.log('client', client);
+  console.log('user', user);
+  
+
   const {
     accessToken,
     accessTokenExpiresOn,
@@ -73,18 +69,14 @@ module.exports.saveAccessToken = function (token, client, user) {
   } = token
 
   const obj = {
-    access_token: accessToken,
-    access_token_expires_on: accessTokenExpiresOn,
+    id: accessToken,
     client_id: client.id,
-    refresh_token: refreshToken,
-    refresh_token_expires_on: refreshTokenExpiresOn,
     user_id: user.id,
   }
 
-  connection.query('INSERT INTO oauth_tokens SET ?', obj, (error, results, fields) => {
-    if (error) {
-      return
-    }
+  return my('INSERT INTO oauth_access_tokens SET ?', obj)
+  .then( results => {
     return results[0]
-  })
+  } )
+
 };
