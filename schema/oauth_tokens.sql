@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `oauth_tokens` (
     `client_id` INT(11) NOT NULL,
     `user_id` INT(11) NOT NULL,
     `refresh_token` VARCHAR(100) NOT NULL,
+    `expires_at` DATETIME DEFAULT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
