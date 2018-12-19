@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const my = require('./my')
 
 const model = {
@@ -24,8 +25,13 @@ const model = {
   },
 
   getUser: async (username, password) => {
-    const results = await my('SELECT * FROM user WHERE username = ? AND password = ?', [username, password])
-    return results[0]
+    const results = await my('SELECT * FROM user WHERE username = ?', [username])
+    const result = results[0];
+    const passwordHash = result.password
+    const match = await bcrypt.compare(password, passwordHash);
+    if (match) {
+      return result
+    }
   },
 
   saveToken: async (token, client, user) => {

@@ -6,6 +6,8 @@ const server = require('http').createServer(app);
 
 const io = require('socket.io')(server);
 
+const bcrypt = require('bcrypt');
+
 const connection = require('./connection')
 
 app.oauth = new OAuthServer({
@@ -18,14 +20,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
 
 
 app.get('/', function (req, res) {
-  connection.query('SELECT * FROM `chat`', (error, results)=> {
+  connection.query('SELECT * FROM `chat`', (error, results) => {
     if (error) {
       res.json({
         status: 'error',
@@ -36,18 +38,29 @@ app.get('/', function (req, res) {
       status: 'success',
       results
     })
-  } )
+  })
 })
 
 app.post('/register', (req, res) => {
-  const {username, password} = req.body
-  res.json(req.body)
-} );
+  const { username, password } = req.body
+  const saltRounds = 10;
+  bcrypt.hash(password, saltRounds).then( hash => {
+    const value = {
+      username,
+      password: hash,
+    }
+    connection.query('INSERT INTO user SET ?', value, (error, results) => {
+      res.json({
+        status: 'success',
+      })
+    })
+  } );
+});
 
 app.post('/oauth/token', app.oauth.token());
 
 // Get secret.
-app.get('/secret', app.oauth.authenticate(), function(req, res) {
+app.get('/secret', app.oauth.authenticate(), function (req, res) {
   // Will require a valid access_token.
   res.send('Secret area');
 });
@@ -62,9 +75,9 @@ app.post('/test', (req) => {
   console.log('body', req.body)
 })
 
-io.on('connection', client => { 
+io.on('connection', client => {
   const { id } = client
-  
+
   client.on('chat message', data => {
     const obj = {
       ...data,
@@ -77,17 +90,17 @@ io.on('connection', client => {
       };
       const { insertId } = results
 
-      connection.query('SELECT * FROM `chat` WHERE `chat_id` = ?', [insertId], (error, results)=> {
+      connection.query('SELECT * FROM `chat` WHERE `chat_id` = ?', [insertId], (error, results) => {
         if (error) {
           console.log(error);
           return
         };
         io.sockets.emit('chat message', {
           status: 'success',
-          results, 
+          results,
         })
-      } )
-    } )
+      })
+    })
   });
 
   client.on('disconnect', () => {
