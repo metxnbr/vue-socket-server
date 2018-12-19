@@ -39,6 +39,11 @@ app.get('/', function (req, res) {
   } )
 })
 
+app.post('/register', (req, res) => {
+  const {username, password} = req.body
+  res.json(req.body)
+} );
+
 app.post('/oauth/token', app.oauth.token());
 
 // Get secret.

@@ -6,6 +6,7 @@
     "serve": "node server.js"
   },
   "dependencies": {
+    "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "express-oauth-server": "^2.0.0",
