@@ -21,16 +21,14 @@ module.exports.getAccessToken = function *(accessToken) {
  * Get client.
  */
 
-module.exports.getClient = function *(clientId, clientSecret) {
+module.exports.getClient = async(clientId, clientSecret) => {
   console.log('getClient');
-  return my('SELECT * FROM oauth_client WHERE id = ? AND secret = ?', [clientId, clientSecret])
-  .then( results => {
-    const result = results[0]
-    return {
-      ...result,
-      grants: ['password'],
-    }
-  } )
+  const results = await my('SELECT * FROM oauth_client WHERE id = ? AND secret = ?', [clientId, clientSecret])
+  result = results[0]
+  return {
+    ...result,
+    grants: ['password'],
+  }
   
 };
 
@@ -38,20 +36,18 @@ module.exports.getClient = function *(clientId, clientSecret) {
  * Get user.
  */
 
-module.exports.getUser = function *(username, password) {
+module.exports.getUser = async(username, password) => {
   console.log('getUser');
 
-  return my('SELECT * FROM user WHERE username = ? AND password = ?', [username, password])
-  .then( results => {
-    return results[0]
-  } )
+  const results= await my('SELECT * FROM user WHERE username = ? AND password = ?', [username, password])
+  return results[0]
 };
 
 /**
  * Save token.
  */
 
-module.exports.saveToken = function *(token, client, user) {
+module.exports.saveToken = async(token, client, user) => {
   console.log('saveAccessToken');
 
   console.log('token', token);
@@ -81,21 +77,15 @@ module.exports.saveToken = function *(token, client, user) {
     user_id: user.id,
   }
 
-  return my('INSERT INTO oauth_access_token SET ?', saveAccessToken)
-  .then( () => {
-    return my('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
-    .then( () => {
-      return {
-        accessToken,
-        accessTokenExpiresAt,
-        refreshToken,
-        refreshTokenExpiresAt,
-        client: { id: client.id },
-        user: { id: user.id }
-      };
-    } )
-    
-    
-  } )
+  const accessResults = await my('INSERT INTO oauth_access_token SET ?', saveAccessToken)
+  const refreshResults = await my('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
 
+  return {
+    accessToken,
+    accessTokenExpiresAt,
+    refreshToken,
+    refreshTokenExpiresAt,
+    client: { id: client.id },
+    user: { id: user.id }
+  }
 };
