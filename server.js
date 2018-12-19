@@ -41,6 +41,16 @@ app.get('/', function (req, res) {
 
 app.post('/oauth/token', app.oauth.token());
 
+app.get('/test', (req) => {
+  console.log('query', req.query)
+  console.log('body', req.body)
+})
+
+app.post('/test', (req) => {
+  console.log('query', req.query)
+  console.log('body', req.body)
+})
+
 io.on('connection', client => { 
   const { id } = client
   
