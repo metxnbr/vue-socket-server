@@ -50,6 +50,12 @@ app.post('/register', (req, res) => {
       password: hash,
     }
     connection.query('INSERT INTO user SET ?', value, (error, results) => {
+      if(error) {
+        res.json({
+          status: 'error',
+          message: error,
+        })
+      }
       res.json({
         status: 'success',
       })
