@@ -1,13 +1,5 @@
 const my = require('./my')
 
-/*
- * Get access token.
- */
-
-module.exports.getAccessToken = function(bearerToken) {
-  
-};
-
 /**
  * Get client.
  */
@@ -18,23 +10,12 @@ module.exports.getClient = function *(clientId, clientSecret) {
   .then( results => {
     const result = results[0]
     return {
-      clientId: result.id,
-      clientSecret: result.secret,
-      grants: ['password'], // the list of OAuth2 grant types that should be allowed
-    };
+      ...result,
+      grants: ['password'],
+    }
   } )
   
 };
-
-/**
- * Get refresh token.
- */
-
-module.exports.getRefreshToken = function *(bearerToken) {
-  console.log('getRefreshToken');
-
-};
-
 
 /*
  * Get user.
@@ -43,7 +24,7 @@ module.exports.getRefreshToken = function *(bearerToken) {
 module.exports.getUser = function *(username, password) {
   console.log('getUser');
 
-  return my('SELECT * FROM users WHERE email = ? AND password = ?', [username, password])
+  return my('SELECT * FROM user WHERE username = ? AND password = ?', [username, password])
   .then( results => {
     return results[0]
   } )
@@ -63,20 +44,25 @@ module.exports.saveToken = function *(token, client, user) {
 
   const {
     accessToken,
-    accessTokenExpiresOn,
     refreshToken,
-    refreshTokenExpiresOn,
   } = token
 
   const obj = {
-    id: accessToken,
+    access_token: accessToken,
     client_id: client.id,
     user_id: user.id,
+    refresh_token: refreshToken,
   }
 
-  return my('INSERT INTO oauth_access_tokens SET ?', obj)
-  .then( results => {
-    return results[0]
+  return my('INSERT INTO oauth_tokens SET ?', obj)
+  .then( (results) => {
+    console.log(results);
+    
+    return {
+      client: client.id,
+      user : user.id,
+      accessToken,
+    }
   } )
 
 };

@@ -1,6 +1,9 @@
-CREATE TABLE IF NOT EXISTS `oauth_clients` (
+CREATE TABLE IF NOT EXISTS `oauth_tokens` (
     `id` INT(10) UNSIGNED AUTO_INCREMENT,
-    `secret` VARCHAR(100) NOT NULL,
+    `access_token` VARCHAR(100) NOT NULL,
+    `client_id` INT(11) NOT NULL,
+    `user_id` INT(11) NOT NULL,
+    `refresh_token` VARCHAR(100) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
