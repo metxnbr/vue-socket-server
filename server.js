@@ -41,6 +41,12 @@ app.get('/', function (req, res) {
 
 app.post('/oauth/token', app.oauth.token());
 
+// Get secret.
+app.get('/secret', app.oauth.authenticate(), function(req, res) {
+  // Will require a valid access_token.
+  res.send('Secret area');
+});
+
 app.get('/test', (req) => {
   console.log('query', req.query)
   console.log('body', req.body)

@@ -1,5 +1,22 @@
 const my = require('./my')
 
+module.exports.getAccessToken = function *(accessToken) {
+  console.log('getAccessToken');
+
+  return my('SELECT * FROM oauth_access_token WHERE access_token = ?',
+            [accessToken]
+  ).then( results => {
+    const result = results[0];
+    return {
+      accessToken: result.access_token,
+      accessTokenExpiresAt: result.expires_at,
+      client: { id: result.client_id },
+      user: { id: result.user_id },
+    }
+  } )
+  
+}
+
 /**
  * Get client.
  */
