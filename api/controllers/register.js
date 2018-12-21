@@ -1,5 +1,4 @@
-const bcrypt = require('bcrypt');
-const my = require('../../utils/my');
+const user = require('../models/user');
 
 module.exports = async (req, res) => {
   const { username, password } = req.body
@@ -14,18 +13,17 @@ module.exports = async (req, res) => {
     if (password.length < 6) throw { type: 'custom', message: 'password no less than 6' }
     if (password.length > 16) throw { type: 'custom', message: 'password no more than 16' }
 
-    const saltRounds = 10;
-    const hash = await bcrypt.hash(password, saltRounds)
+    const {create, findById} = user
 
-    const value = {
-      username,
-      password: hash,
-    }
-
-    const results = await my('INSERT INTO user SET ?', value)
+    const results = await create(username, password );
+    const { insertId } = results
+    const userInfo = await findById(insertId)
 
     res.json({
       status: 'success',
+      user: {
+        ...userInfo,
+      },
     })
   } catch (error) {
     const { errno, type, message } = error
