@@ -16,9 +16,7 @@ module.exports = {
     return await my('INSERT INTO user SET ?', value)
   },
 
-  findById: async (id) => {
-    const columns = ['username']
-
+  findById: async (id, columns=['username']) => {
     const results = await my('SELECT ?? FROM user WHERE id = ?', [columns, id])
 
     return results[0]
