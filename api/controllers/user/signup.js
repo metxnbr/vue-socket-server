@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const login = require('./login');
 
 module.exports = async (req, res) => {
   const { username, password } = req.body
@@ -19,12 +20,7 @@ module.exports = async (req, res) => {
     const { insertId } = results
     const userInfo = await findById(insertId)
 
-    res.json({
-      status: 'success',
-      user: {
-        ...userInfo,
-      },
-    })
+    login(res, { username, password })
   } catch (error) {
     const { errno, type, message } = error
 
