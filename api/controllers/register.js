@@ -35,6 +35,7 @@ module.exports = async (req, res) => {
         status: 'error',
         message,
       })
+      return
     }
 
     if (errno === 1062) {
@@ -42,6 +43,7 @@ module.exports = async (req, res) => {
         status: 'error',
         message: 'username already exsit',
       })
+      return
     }
 
     res.json({
