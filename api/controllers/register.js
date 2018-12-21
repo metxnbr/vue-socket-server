@@ -1,4 +1,4 @@
-const user = require('../models/user');
+const User = require('../models/User');
 
 module.exports = async (req, res) => {
   const { username, password } = req.body
@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     if (password.length < 6) throw { type: 'custom', message: 'password no less than 6' }
     if (password.length > 16) throw { type: 'custom', message: 'password no more than 16' }
 
-    const {create, findById} = user
+    const {create, findById} = User
 
     const results = await create(username, password );
     const { insertId } = results
