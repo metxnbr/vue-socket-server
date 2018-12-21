@@ -26,7 +26,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use('/', router);
+router(app);
 
 app.post('/oauth/token', app.oauth.token());
 
