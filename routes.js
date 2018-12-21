@@ -1,6 +1,6 @@
 const testController = require('./api/controllers/test')
 const secretController = require('./api/controllers/secret')
-const RegisterController = require('./api/controllers/RegisterController')
+const signup = require('./api/controllers/user/signup')
 
 module.exports = (app) => {
   app.get('/test', testController.index)
@@ -9,5 +9,5 @@ module.exports = (app) => {
   
   app.get('/secret', app.oauth.authenticate(), secretController)
   
-  app.post('/register', RegisterController)
+  app.post('/register', signup)
 }
