@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('./utils/jwt');
-const my = require('./my')
+const my = require('./utils/my')
 
 const model = {
   getAccessToken: async accessToken => {
