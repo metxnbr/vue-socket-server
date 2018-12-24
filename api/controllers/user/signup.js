@@ -14,11 +14,16 @@ module.exports = async (req, res) => {
     if (password.length > 16) throw { type: 'custom', message: 'password no more than 16' }
 
     const {create, findById} = User
-
-    const results = await create(username, password);
-    const { insertId } = results
-    await findById(insertId)
-    res.redirect(307, '/oauth/token');
+    
+    try {
+      const results = await create(username, password);
+      const { insertId } = results
+      await findById(insertId)
+      res.redirect(307, '/oauth/token');
+    } catch (error) {
+      
+    }
+   
   } catch (error) {
     const { errno, type, message } = error
 
