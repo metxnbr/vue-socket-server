@@ -1,10 +1,12 @@
 const bcrypt = require('bcrypt');
+const jwt = require('./utils/jwt');
 const my = require('./my')
 
 const model = {
   getAccessToken: async accessToken => {
+    const jwtDecoded = await jwt.verify(accessToken)
     const results = await my('SELECT * FROM oauth_access_token WHERE access_token = ?',
-      [accessToken]
+      [jwtDecoded.access_token]
     )
     const result = results[0];
     return {
@@ -57,17 +59,24 @@ const model = {
       user_id: user.id,
     }
 
-    const accessResults = await my('INSERT INTO oauth_access_token SET ?', saveAccessToken)
-    const refreshResults = await my('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
+    try {
+      await my('INSERT INTO oauth_access_token SET ?', saveAccessToken)
+      await my('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
+      const jwtToken = await jwt.sign({ access_token: accessToken });
+      return {
+        accessToken: jwtToken,
+        accessTokenExpiresAt,
+        refreshToken,
+        refreshTokenExpiresAt,
+        client: { id: client.id },
+        user: { id: user.id }
+      }
+    } catch (error) {
+      console.log(error);
 
-    return {
-      accessToken,
-      accessTokenExpiresAt,
-      refreshToken,
-      refreshTokenExpiresAt,
-      client: { id: client.id },
-      user: { id: user.id }
     }
+
+
   },
 }
 
