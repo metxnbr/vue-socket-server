@@ -6,9 +6,9 @@ const server = require('http').createServer(app);
 
 const io = require('socket.io')(server);
 
-const bcrypt = require('bcrypt');
-
 const connection = require('./connection')
+
+const router = require('./routes')
 
 app.oauth = new OAuthServer({
   model: require('./model'),
@@ -26,61 +26,9 @@ app.use(function (req, res, next) {
   next();
 });
 
-
-app.get('/', function (req, res) {
-  connection.query('SELECT * FROM `chat`', (error, results) => {
-    if (error) {
-      res.json({
-        status: 'error',
-        message: error,
-      })
-    };
-    res.json({
-      status: 'success',
-      results
-    })
-  })
-})
-
-app.post('/register', (req, res) => {
-  const { username, password } = req.body
-  const saltRounds = 10;
-  bcrypt.hash(password, saltRounds).then( hash => {
-    const value = {
-      username,
-      password: hash,
-    }
-    connection.query('INSERT INTO user SET ?', value, (error, results) => {
-      if(error) {
-        res.json({
-          status: 'error',
-          message: error,
-        })
-      }
-      res.json({
-        status: 'success',
-      })
-    })
-  } );
-});
+router(app);
 
 app.post('/oauth/token', app.oauth.token());
-
-// Get secret.
-app.get('/secret', app.oauth.authenticate(), function (req, res) {
-  // Will require a valid access_token.
-  res.send('Secret area');
-});
-
-app.get('/test', (req) => {
-  console.log('query', req.query)
-  console.log('body', req.body)
-})
-
-app.post('/test', (req) => {
-  console.log('query', req.query)
-  console.log('body', req.body)
-})
 
 io.on('connection', client => {
   const { id } = client
