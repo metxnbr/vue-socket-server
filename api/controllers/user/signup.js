@@ -1,5 +1,4 @@
 const User = require('../../models/User');
-const login = require('./login');
 
 module.exports = async (req, res) => {
   const { username, password } = req.body
@@ -16,11 +15,10 @@ module.exports = async (req, res) => {
 
     const {create, findById} = User
 
-    const results = await create(username, password );
+    const results = await create(username, password);
     const { insertId } = results
-    const userInfo = await findById(insertId)
-
-    login(res, { username, password })
+    await findById(insertId)
+    res.redirect(307, '/oauth/token');
   } catch (error) {
     const { errno, type, message } = error
 
