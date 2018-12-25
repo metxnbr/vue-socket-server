@@ -1,13 +1,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('./utils/jwt');
-const my = require('./utils/my')
+const asyncConnect = require('./utils/asyncConnect')
 
 const model = {
   getAccessToken: async accessToken => {
     console.log('getAccessToken');
 
     const jwtDecoded = await jwt.verify(accessToken)
-    const results = await my('SELECT * FROM oauth_access_token WHERE access_token = ?',
+    const results = await asyncConnect('SELECT * FROM oauth_access_token WHERE access_token = ?',
       [jwtDecoded.access_token]
     )
     const result = results[0];
@@ -22,7 +22,7 @@ const model = {
   getClient: async (clientId, clientSecret) => {
     console.log('getClient');
 
-    const results = await my('SELECT * FROM oauth_client WHERE id = ? AND secret = ?', [clientId, clientSecret])
+    const results = await asyncConnect('SELECT * FROM oauth_client WHERE id = ? AND secret = ?', [clientId, clientSecret])
     result = results[0]
     return {
       ...result,
@@ -33,7 +33,7 @@ const model = {
   getRefreshToken: async (refreshToken) => {
     console.log('getRefreshToken');
 
-    const results = await my('SELECT * FROM oauth_refresh_token WHERE refresh_token = ?', [refreshToken])
+    const results = await asyncConnect('SELECT * FROM oauth_refresh_token WHERE refresh_token = ?', [refreshToken])
     result = results[0]
     return {
       refreshToken: result.refresh_token,
@@ -46,7 +46,7 @@ const model = {
   revokeToken: async (token) => {
     console.log('revokeToken');
     try {
-      const results = await my('DELETE FROM oauth_refresh_token WHERE refresh_token = ?', [token.refreshToken])
+      const results = await asyncConnect('DELETE FROM oauth_refresh_token WHERE refresh_token = ?', [token.refreshToken])
       return true
     } catch (error) {
       return false
@@ -57,7 +57,7 @@ const model = {
   getUser: async (username, password) => {
     console.log('getUser');
 
-    const results = await my('SELECT * FROM user WHERE username = ?', [username])
+    const results = await asyncConnect('SELECT * FROM user WHERE username = ?', [username])
     const result = results[0];
     const passwordHash = result.password
     const match = await bcrypt.compare(password, passwordHash);
@@ -92,8 +92,8 @@ const model = {
     }
 
     try {
-      await my('INSERT INTO oauth_access_token SET ?', saveAccessToken)
-      await my('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
+      await asyncConnect('INSERT INTO oauth_access_token SET ?', saveAccessToken)
+      await asyncConnect('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
       const jwtToken = await jwt.sign({ access_token: accessToken });
       return {
         accessToken: jwtToken,

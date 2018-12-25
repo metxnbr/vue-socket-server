@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const my = require('../../utils/my');
+const asyncConnect = require('../../utils/asyncConnect');
 
 const saltRounds = 10;
 
@@ -13,11 +13,11 @@ module.exports = {
       password: await hash(password),
     }
 
-    return await my('INSERT INTO user SET ?', value)
+    return await asyncConnect('INSERT INTO user SET ?', value)
   },
 
   findById: async (id, columns=['username']) => {
-    const results = await my('SELECT ?? FROM user WHERE id = ?', [columns, id])
+    const results = await asyncConnect('SELECT ?? FROM user WHERE id = ?', [columns, id])
 
     return results[0]
   }
