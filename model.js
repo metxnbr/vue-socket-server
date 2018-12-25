@@ -32,8 +32,8 @@ const model = {
 
   getRefreshToken: async (refreshToken) => {
     console.log('getRefreshToken');
-
-    const results = await asyncConnect('SELECT * FROM oauth_refresh_token WHERE refresh_token = ?', [refreshToken])
+    const jwtDecoded = await jwt.verify(refreshToken)
+    const results = await asyncConnect('SELECT * FROM oauth_refresh_token WHERE refresh_token = ?', [jwtDecoded.refresh_token])
     result = results[0]
     return {
       refreshToken: result.refresh_token,
@@ -94,11 +94,12 @@ const model = {
     try {
       await asyncConnect('INSERT INTO oauth_access_token SET ?', saveAccessToken)
       await asyncConnect('INSERT INTO oauth_refresh_token SET ?', saveRefreshToken)
-      const jwtToken = await jwt.sign({ access_token: accessToken });
+      const jwtAccessToken = await jwt.sign({ access_token: accessToken });
+      const jwtRefreshToken = await jwt.sign({ refresh_token: refreshToken });
       return {
-        accessToken: jwtToken,
+        accessToken: jwtAccessToken,
+        refreshToken: jwtRefreshToken,
         accessTokenExpiresAt,
-        refreshToken,
         refreshTokenExpiresAt,
         client: { id: client.id },
         user: { id: user.id }
