@@ -10,6 +10,7 @@ const router = require('./routes')
 
 app.oauth = new OAuthServer({
   model: require('./model'),
+  accessTokenLifetime: 60 * 60 * 12,
 });
 
 // parse application/x-www-form-urlencoded
