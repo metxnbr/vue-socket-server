@@ -4,6 +4,8 @@ const my = require('./utils/my')
 
 const model = {
   getAccessToken: async accessToken => {
+    console.log('getAccessToken');
+
     const jwtDecoded = await jwt.verify(accessToken)
     const results = await my('SELECT * FROM oauth_access_token WHERE access_token = ?',
       [jwtDecoded.access_token]
@@ -18,15 +20,43 @@ const model = {
   },
 
   getClient: async (clientId, clientSecret) => {
+    console.log('getClient');
+
     const results = await my('SELECT * FROM oauth_client WHERE id = ? AND secret = ?', [clientId, clientSecret])
     result = results[0]
     return {
       ...result,
-      grants: ['password'],
+      grants: ['password', 'refresh_token'],
     }
   },
 
+  getRefreshToken: async (refreshToken) => {
+    console.log('getRefreshToken');
+
+    const results = await my('SELECT * FROM oauth_refresh_token WHERE refresh_token = ?', [refreshToken])
+    result = results[0]
+    return {
+      refreshToken: result.refresh_token,
+      refreshTokenExpiresAt: result.expires_at,
+      client: { id: result.client_id },
+      user: { id: result.user_id },
+    }
+  },
+
+  revokeToken: async (token) => {
+    console.log('revokeToken');
+    try {
+      const results = await my('DELETE FROM oauth_refresh_token WHERE refresh_token = ?', [token.refreshToken])
+      return true
+    } catch (error) {
+      return false
+    }
+
+  },
+
   getUser: async (username, password) => {
+    console.log('getUser');
+
     const results = await my('SELECT * FROM user WHERE username = ?', [username])
     const result = results[0];
     const passwordHash = result.password
@@ -37,6 +67,8 @@ const model = {
   },
 
   saveToken: async (token, client, user) => {
+    console.log('saveToken');
+
     const {
       accessToken,
       accessTokenExpiresAt,
@@ -75,8 +107,6 @@ const model = {
       console.log(error);
 
     }
-
-
   },
 }
 
