@@ -13,7 +13,7 @@ module.exports = {
       password: await hash(password),
     }
 
-    return await asyncConnect('INSERT INTO user SET ?', value)
+    return asyncConnect('INSERT INTO user SET ?', value)
   },
 
   findById: async (id, columns=['username']) => {
