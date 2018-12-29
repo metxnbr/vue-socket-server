@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS `message` (
     `id` INT UNSIGNED AUTO_INCREMENT,
-    `message` TEXT DEFAULT NULL,
-    `room_id` INT NOT NULL,
-    `user_id` INT NOT NULL,
+    `text` TEXT DEFAULT NULL,
+    `sender_id` INT NOT NULL,
+    `receiver_id` INT NOT NULL,
+    `is_read` TINYINT(1) DEFAULT 0,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
